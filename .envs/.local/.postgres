@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=coffee_stores
+POSTGRES_USER=vguMCdJKQnkSmTwHiZVlaCLUjmYBdzCD
+POSTGRES_PASSWORD=IOWziR64U3XPNYj7NbNyIl6YLffLqj0z58yCCTqquUonRu2Wi5EEA9mtPDmFsy8P
