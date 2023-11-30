@@ -16,6 +16,7 @@ urlpatterns = [
     # User management
     path("users/", include("coffee_stores.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
+    path("scraper/", include("store_scraper.urls")),
     # Your stuff: custom urls includes go here
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
