@@ -86,6 +86,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "coffee_stores.users",
     # Your stuff: custom apps go here
+    "store_scraper",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
