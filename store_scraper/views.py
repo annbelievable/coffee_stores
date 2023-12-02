@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 SCRAPE_URL = "https://zuscoffee.com/category/store/melaka"
 state_classes = []
+stores = []
 
 
 # Create your views here.
@@ -17,8 +18,6 @@ def index(request):
 	scrape_zus_website()
 	print("Finished scraping")
 	return render(request, "store_scraper/index.html", context)
-
-
 def get_driver_options():
 	# configure webdriver
 	options = Options()
@@ -35,7 +34,6 @@ def prepare_driver():
 
 
 def get_state_classes(driver):
-	driver.get(SCRAPE_URL)
 	found_states = driver.find_elements(By.CLASS_NAME, "state")
 	for fs in found_states:
 		state_class = fs.get_attribute("class")
@@ -43,19 +41,55 @@ def get_state_classes(driver):
 		state_classes.append(state_class)
 
 
-def scrape_zus_website():
-	driver = prepare_driver()
-	get_state_classes(driver)
+def wait_for_page_load(driver):
 	wait = WebDriverWait(driver, 10)
+	wait.until(EC.visibility_of_element_located((By.ID, "fc_frame")))
 
+
+def get_page_articles(driver):
+	articles = driver.find_elements(By.TAG_NAME, "article")
+	for article in articles:
+		article_details = article.find_elements(By.CSS_SELECTOR, ".elementor-widget-container p")
+		name = article_details[0].text
+		address = article_details[1].text
+		stores.append({name: name, address:address})
+
+
+def get_next_page(driver):
+	has_next_page = True
+	while has_next_page:
+		wait_for_page_load(driver)
+		print(f"SCRAPE: {driver.current_url}")
+		get_page_articles(driver)
+		#try:
+		try:
+			next_page = driver.find_element(By.CSS_SELECTOR, ".page-numbers.next")
+			next_page_url = next_page.get_attribute("href")
+			if next_page_url is not None:
+				driver.get(next_page_url)
+				print("NEXT PAGE")
+			else:
+				has_next_page = False
+		except Exception as e:
+			has_next_page = False
+			print(f"NO NEXT PAGE")
+
+
+def get_all_stores(driver):
 	for sc in state_classes:
 		try:
-			loaded_url = driver.current_url
-			wait.until(EC.url_to_be(loaded_url))
-
+			print(f"CURRENT PAGE: {driver.current_url}, GOING TO {sc}")
+			wait_for_page_load(driver)
 			found_state = driver.find_element(By.CLASS_NAME, sc)
-			found_state.click()
+			driver.execute_script("arguments[0].dispatchEvent(new Event('click'));", found_state)
+			get_next_page(driver)
 		except Exception as e:
 			print(f"Page did not load properly: {str(e)}")
 
+
+def scrape_zus_website():
+	driver = prepare_driver()
+	driver.get(SCRAPE_URL)
+	get_state_classes(driver)
+	get_all_stores(driver)
 	driver.quit()
