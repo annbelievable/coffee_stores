@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 volumes:
   coffee_stores_local_postgres_data: {}
@@ -20,7 +20,7 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
     ports:
-      - '8000:8000'
+      - "8000:8000"
     command: /start
 
   postgres:
@@ -32,6 +32,8 @@ services:
     volumes:
       - coffee_stores_local_postgres_data:/var/lib/postgresql/data
       - coffee_stores_local_postgres_data_backups:/backups
+    ports:
+      - "5432:5432"
     env_file:
       - ./.envs/.local/.postgres
 
@@ -48,7 +50,7 @@ services:
       - ./config:/app/config:z
       - ./coffee_stores:/app/coffee_stores:z
     ports:
-      - '9000:9000'
+      - "9000:9000"
     command: /start-docs
 
   redis:
@@ -80,5 +82,5 @@ services:
     image: coffee_stores_local_flower
     container_name: coffee_stores_local_flower
     ports:
-      - '5555:5555'
+      - "5555:5555"
     command: /start-flower
