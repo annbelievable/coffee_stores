@@ -14,10 +14,10 @@ stores = []
 # Create your views here.
 def index(request):
 	context = {"title": "Store Scraper"}
-	print("Starting scraping")
 	scrape_zus_website()
-	print("Finished scraping")
 	return render(request, "store_scraper/index.html", context)
+
+
 def get_driver_options():
 	# configure webdriver
 	options = Options()
@@ -59,26 +59,21 @@ def get_next_page(driver):
 	has_next_page = True
 	while has_next_page:
 		wait_for_page_load(driver)
-		print(f"SCRAPE: {driver.current_url}")
 		get_page_articles(driver)
-		#try:
 		try:
 			next_page = driver.find_element(By.CSS_SELECTOR, ".page-numbers.next")
 			next_page_url = next_page.get_attribute("href")
 			if next_page_url is not None:
 				driver.get(next_page_url)
-				print("NEXT PAGE")
 			else:
 				has_next_page = False
 		except Exception as e:
 			has_next_page = False
-			print(f"NO NEXT PAGE")
 
 
 def get_all_stores(driver):
 	for sc in state_classes:
 		try:
-			print(f"CURRENT PAGE: {driver.current_url}, GOING TO {sc}")
 			wait_for_page_load(driver)
 			found_state = driver.find_element(By.CLASS_NAME, sc)
 			driver.execute_script("arguments[0].dispatchEvent(new Event('click'));", found_state)
