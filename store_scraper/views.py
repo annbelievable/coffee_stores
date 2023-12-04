@@ -4,12 +4,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import requests
 
 from config import celery_app
 from store_scraper.models import CoffeeStore
 
 
 SCRAPE_URL = "https://zuscoffee.com/category/store/melaka"
+OPENSTREETMAP_URL = "https://nominatim.openstreetmap.org/search"
 state_classes = []
 
 
@@ -21,9 +23,9 @@ def index(request):
 
 def get_driver_options():
 	options = Options()
-	options.add_argument('--no-sandbox')
+	options.add_argument("--no-sandbox")
 	options.add_argument("--headless")
-	options.add_argument('--disable-dev-shm-usage')
+	options.add_argument("--disable-dev-shm-usage")
 	return options
 
 
@@ -88,6 +90,33 @@ def get_all_stores(driver):
 			print(f"Page did not load properly: {str(e)}")
 
 
+def openstreetmap_geocoding(address):
+	params = {
+		"q": address,
+		"format": "json",
+	}
+
+	try:
+		response = requests.get(OPENSTREETMAP_URL, params=params)
+		if response.status_code == 200:
+			data = response.json()
+			if len(data) > 0:	
+				return float(data[0]["lat"]), float(data[0]["lon"])
+	except:
+		return 0, 0
+	return 0, 0
+
+
+def get_stores_coordinates():
+	stores = CoffeeStore.objects.all()
+	for store in stores:
+		lat, lon = openstreetmap_geocoding(store.address)
+		print(store.name, lat, lon)
+		store.latitude = lat
+		store.longitude = lon
+		store.save()
+
+
 @celery_app.task()
 def scrape_zus_website():
 	driver = prepare_driver()
@@ -95,3 +124,4 @@ def scrape_zus_website():
 	get_state_classes(driver)
 	get_all_stores(driver)
 	driver.quit()
+	get_stores_coordinates()
