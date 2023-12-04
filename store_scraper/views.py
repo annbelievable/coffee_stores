@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework import serializers, viewsets
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -17,7 +18,8 @@ state_classes = []
 
 def index(request):
 	context = {"title": "Store Scraper"}
-	scrape_zus_website.delay()
+	#scrape_zus_website.delay()
+	print("VISIT 1")
 	return render(request, "store_scraper/index.html", context)
 
 
@@ -125,3 +127,16 @@ def scrape_zus_website():
 	get_all_stores(driver)
 	driver.quit()
 	get_stores_coordinates()
+
+
+class CoffeeStoreSerializer(serializers.HyperlinkedModelSerializer):
+	class Meta:
+		model = CoffeeStore
+		fields = ["name", "address", "latitude", "longitude"]
+
+
+class CoffeeStoreViewSet(viewsets.ModelViewSet):
+	queryset = CoffeeStore.objects.all()
+	serializer_class = CoffeeStoreSerializer
+	permission_classes = []
+	print("VISIT 2")
