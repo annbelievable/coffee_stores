@@ -5,25 +5,25 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from config import celery_app
+from store_scraper.models import CoffeeStore
+
 
 SCRAPE_URL = "https://zuscoffee.com/category/store/melaka"
 state_classes = []
-stores = []
 
 
-# Create your views here.
 def index(request):
 	context = {"title": "Store Scraper"}
-	scrape_zus_website()
+	scrape_zus_website.delay()
 	return render(request, "store_scraper/index.html", context)
 
 
 def get_driver_options():
-	# configure webdriver
 	options = Options()
-	options.headless = True
-	options.add_argument("--window-size=1920,1080")
-	options.add_argument("start-maximized")
+	options.add_argument('--no-sandbox')
+	options.add_argument("--headless")
+	options.add_argument('--disable-dev-shm-usage')
 	return options
 
 
@@ -52,7 +52,13 @@ def get_page_articles(driver):
 		article_details = article.find_elements(By.CSS_SELECTOR, ".elementor-widget-container p")
 		name = article_details[0].text
 		address = article_details[1].text
-		stores.append({name: name, address:address})
+		try:
+			CoffeeStore.objects.update_or_create(
+				name=name,
+				address=address,
+			)
+		except:
+			print(f"An error occurred: Store name: {name}, Address: {address}")
 
 
 def get_next_page(driver):
@@ -82,6 +88,7 @@ def get_all_stores(driver):
 			print(f"Page did not load properly: {str(e)}")
 
 
+@celery_app.task()
 def scrape_zus_website():
 	driver = prepare_driver()
 	driver.get(SCRAPE_URL)
