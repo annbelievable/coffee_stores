@@ -18,8 +18,7 @@ state_classes = []
 
 def index(request):
 	context = {"title": "Store Scraper"}
-	#scrape_zus_website.delay()
-	print("VISIT 1")
+	scrape_zus_website.delay()
 	return render(request, "store_scraper/index.html", context)
 
 
@@ -139,4 +138,3 @@ class CoffeeStoreViewSet(viewsets.ModelViewSet):
 	queryset = CoffeeStore.objects.all()
 	serializer_class = CoffeeStoreSerializer
 	permission_classes = []
-	print("VISIT 2")
