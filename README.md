@@ -13,7 +13,9 @@ This project is bootstrapped using cookiecutter. It includes rest framework, cel
 
 To start the project, make sure you have docker installed in your computer.
 
-Simply run the command to start the project up:
+Fill in the necessary details in .envs/.local/.postgres file.
+
+Then simply run the command to start the project up:
 
     $ docker compose -f local.yml up --build
 
