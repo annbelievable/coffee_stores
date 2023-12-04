@@ -7,6 +7,26 @@ I love coffee
 
 License: MIT
 
+## PROJECT GUIDE
+
+This project is bootstrapped using cookiecutter. It includes rest framework, celery and docker which takes care a lot of the basic needs.
+
+To start the project, make sure you have docker installed in your computer.
+
+Simply run the command to start the project up:
+
+    $ docker compose -f local.yml up --build
+
+Once the project is up, visit localhost:8000 in your browser.
+
+Visit the "Store Sraper" page, a background task will start running and scrape all the stores from the Zus website.
+
+Alternatively, you can create a periodic task and run the task periodically.
+
+Check the docker logs to see when the task finishes.
+
+Visit the page "Coffee stores REST API" to look at the DJANGO rest api's result or use an application similar to Postman and get this [link](http://localhost:8000/api/coffee-stores/).
+
 ## Settings
 
 Moved to [settings](http://cookiecutter-django.readthedocs.io/en/latest/settings.html).
